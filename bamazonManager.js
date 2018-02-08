@@ -34,10 +34,9 @@ var connection = mysql.createConnection({
           }else if (choice.choice === 'View Low Inventory'){
             lowInventory();   
           }else if (choice.choice === 'Add to Inventory'){
-            displayInventory();
             addToInventory(); 
           }else if (choice.choice === 'Add New Product'){
-            console.log('Add New Product')  
+            newProduct(); 
           }
       })
   }
@@ -49,6 +48,7 @@ var connection = mysql.createConnection({
         console.log('---------------------')
         console.table(res);
         })    
+        connection.end();
   }
 
   function lowInventory(){
@@ -58,6 +58,7 @@ var connection = mysql.createConnection({
         console.log('---------------------')
         console.table(res);
         }) 
+        connection.end();
   }
 
   function addToInventory(){
@@ -73,8 +74,43 @@ var connection = mysql.createConnection({
             message: 'How many items would you like to add?'
         }
       ]).then(function(input){
-        connection.query("UPDATE products SET quantity = quantity + ? WHERE id = ?",[input.quantity, input.id], function(err3, results3){
+        connection.query("UPDATE products SET quantity = quantity + ? WHERE id = ?",[input.quantity, input.id], function(err3, res3){
             if (err3) throw err3;
           });
+          connection.end();    
       })
   }
+
+function newProduct(){
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'product_name',
+            message: 'Please enter product name'
+        },
+        {
+            type: 'input',
+            name: 'department_name',
+            message: 'Which department does the product belong in?'
+        },
+        {
+            type: 'input',
+            name: 'price',
+            message: 'How much does it cost?'
+        },
+        {
+            type: 'input',
+            name: 'quantity',
+            message: 'How many do we have?'
+        }
+    ]).then(function(input){
+        connection.query("INSERT INTO products SET ?",
+         {product_name: input.product_name, 
+         department_name: 
+         input.department_name, 
+         price: input.price, 
+         quantity: input.quantity}, function(err4, res4){});
+        console.log("New product added")
+        connection.end();
+    })
+}
